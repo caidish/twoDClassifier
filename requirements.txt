@@ -1,0 +1,12 @@
+# Core Deep Learning
+tensorflow>=2.8.0,<2.16.0
+
+# Image Processing
+opencv-python>=4.5.0
+Pillow>=8.0.0
+
+# Scientific Computing
+numpy>=1.19.0
+
+# Optional: For development and examples
+matplotlib>=3.3.0
