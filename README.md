@@ -1,6 +1,6 @@
-# Graphene Classifier 🧬
+# 2D Material Classifier 🧬
 
-A clean, modern deep learning framework for 2D material classification, extracted and refactored from the CC_v12 project.
+A clean, modern deep learning framework for 2D material classification, extracted and refactored from the CC_v12 project. Supports classification of various 2D materials including graphene, hBN (hexagonal boron nitride), and other layered materials.
 
 ## 🚀 Quick Start
 
@@ -8,7 +8,7 @@ A clean, modern deep learning framework for 2D material classification, extracte
 
 ```bash
 # Clone or download this project
-cd graphene_classifier
+cd twoDClassifier
 
 # Create virtual environment
 python -m venv venv
@@ -23,8 +23,8 @@ pip install -r requirements.txt
 ```python
 from src.model_loader import load_graphene_model
 
-# Load a pretrained model
-classifier = load_graphene_model('graphene_1')
+# Load a pretrained model (supports various 2D materials)
+classifier = load_graphene_model('hBN_monolayer')  # or 'graphene_1', 'hBN', etc.
 
 # Make prediction on an image
 prediction = classifier.predict_single_image('path/to/image.jpg')
@@ -44,14 +44,21 @@ python examples/basic_usage.py
 ## 📁 Project Structure
 
 ```
-graphene_classifier/
-├── models/                 # Pretrained models
+twoDClassifier/
+├── models/                 # Pretrained models for various 2D materials
 │   ├── graphene_1/
 │   │   ├── trained_model.json
 │   │   └── trained_model.h5
-│   └── graphene_2/
-│       ├── trained_model.json
-│       └── trained_model.h5
+│   ├── graphene_2/
+│   │   ├── trained_model.json
+│   │   └── trained_model.h5
+│   ├── hBN/
+│   │   ├── trained_model.json
+│   │   └── trained_model.h5
+│   ├── hBN_monolayer/
+│   │   ├── trained_model.json
+│   │   └── trained_model.h5
+│   └── [other 2D material models...]
 ├── src/                   # Source code
 │   ├── __init__.py
 │   ├── model_loader.py    # Model loading utilities
@@ -65,9 +72,9 @@ graphene_classifier/
 
 ## 🧠 Model Architecture
 
-Both pretrained models use CNN architectures optimized for 2D material classification:
+All pretrained models use CNN architectures optimized for 2D material classification:
 
-**Graphene_1 Architecture:**
+**Standard Architecture (used across material types):**
 - Input: RGB images (flexible size, default 100x100)
 - 4 Convolutional layers with max pooling
 - Filters: 32 → 64 → 128 → 256
@@ -82,7 +89,7 @@ Both pretrained models use CNN architectures optimized for 2D material classific
 
 ## 📊 Model Performance
 
-These models were trained on 2D material microscopy images to classify flake quality:
+These models were trained on 2D material microscopy images to classify flake quality across different materials (graphene, hBN, etc.):
 - **Class 0**: Bad/poor quality flakes
 - **Class 1**: Good/high quality flakes
 
@@ -133,10 +140,10 @@ print(f"Trainable parameters: {info['trainable_params']}")
 ## 🎯 Use Cases
 
 This framework is ideal for:
-- 2D material quality assessment
-- Graphene flake classification
+- 2D material quality assessment (graphene, hBN, transition metal dichalcogenides, etc.)
+- Multi-material flake classification
 - Microscopy image analysis
-- Research in materials science
+- Research in materials science and nanotechnology
 - Educational deep learning projects
 
 ## 🔧 Troubleshooting

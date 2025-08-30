@@ -126,8 +126,16 @@ class GrapheneClassifier:
             Prediction - binary classification or probabilities
         """
         from PIL import Image
-        from .image_utils import CenterCrop
         import numpy as np
+        import sys
+        import os
+        
+        # Add src directory to path for imports
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        if current_dir not in sys.path:
+            sys.path.insert(0, current_dir)
+        
+        from image_utils import CenterCrop
         
         # Load and preprocess image
         image = Image.open(image_path)
@@ -140,10 +148,10 @@ class GrapheneClassifier:
 
 def load_graphene_model(model_name: str = "graphene_1") -> GrapheneClassifier:
     """
-    Load a pretrained graphene classification model.
+    Load a pretrained 2D material classification model.
     
     Args:
-        model_name: Name of the model ("graphene_1" or "graphene_2")
+        model_name: Name of the model (e.g., "graphene_1", "graphene_2", "hBN", "hBN_monolayer", etc.)
         
     Returns:
         GrapheneClassifier instance

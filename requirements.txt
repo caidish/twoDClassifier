@@ -10,3 +10,6 @@ numpy>=1.19.0
 
 # Optional: For development and examples
 matplotlib>=3.3.0
+
+# GUI is built with tkinter (included with Python)
+# No additional GUI dependencies required
