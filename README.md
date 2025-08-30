@@ -35,10 +35,14 @@ probs = classifier.predict_single_image('path/to/image.jpg', return_probabilitie
 print(f"Good probability: {probs[0][1]:.3f}")
 ```
 
-### Run Example
+### Run Examples
 
 ```bash
+# Command line example
 python examples/basic_usage.py
+
+# GUI Application
+python gui_app.py
 ```
 
 ## 📁 Project Structure
@@ -65,7 +69,18 @@ twoDClassifier/
 │   └── image_utils.py     # Image preprocessing
 ├── examples/              # Usage examples
 │   └── basic_usage.py
-├── data/                  # Place your data here
+├── data/                  # Sample test images
+│   ├── Data1.jpg
+│   └── Data2.jpg
+├── gui_app.py             # GUI testing application
+├── GUI_USAGE.md           # GUI usage guide
+├── mcp_server.py          # MCP server for remote language models
+├── mcp_config.py          # MCP server configuration
+├── mcp_client_example.py  # MCP client example code
+├── mcp_requirements.txt   # Additional MCP dependencies
+├── test_mcp_simple.py     # MCP server testing script
+├── MCP_USAGE.md           # MCP server documentation
+├── todo.md                # Development planning document
 ├── requirements.txt
 └── README.md
 ```
@@ -83,15 +98,89 @@ All pretrained models use CNN architectures optimized for 2D material classifica
 
 **Key Features:**
 - Automatic image preprocessing (center crop + resize)
-- Class balancing support
+- Class balancing support  
 - TensorFlow 2.x compatible
 - Clean, modular code structure
+- **GUI testing interface** for easy model/image testing
+- **Multiple model support** (10+ pretrained models available)
+- **Sample data included** for immediate testing
 
 ## 📊 Model Performance
 
 These models were trained on 2D material microscopy images to classify flake quality across different materials (graphene, hBN, etc.):
 - **Class 0**: Bad/poor quality flakes
 - **Class 1**: Good/high quality flakes
+
+## 🖥️ GUI Application
+
+For easy testing and demonstration, use the included GUI:
+
+```bash
+python gui_app.py
+```
+
+**GUI Features:**
+- **Image Selection**: Choose from sample images in `data/` folder
+- **Model Selection**: Pick from 10+ available models (graphene, hBN variants)
+- **Real-time Prediction**: Instant results with confidence scores
+- **Visual Interface**: Image preview and color-coded results
+- **Model Comparison**: Easy switching between different models
+
+See `GUI_USAGE.md` for detailed instructions.
+
+## 🌐 MCP Server (Remote Access)
+
+The project now includes a Model Context Protocol (MCP) server that enables remote language models to access the 2D material classification system via network connections.
+
+### Quick Start
+
+```bash
+# Install MCP dependencies
+pip install fastapi 'uvicorn[standard]' python-multipart httpx
+
+# Start MCP server (default: localhost:8000)
+python mcp_server.py
+
+# Custom IP and port for remote access
+python mcp_server.py --host 0.0.0.0 --port 8001
+```
+
+### Remote Language Model Integration
+
+Remote LMs can connect via HTTP to:
+1. **Upload images**: POST base64-encoded images to server
+2. **Select models**: Choose from 10+ available neural networks
+3. **Get predictions**: Receive quality classifications with confidence scores
+4. **Access history**: Retrieve previous prediction results
+
+**Connection URL**: `http://<server-ip>:<port>`
+
+**Available MCP Tools**:
+- `upload_image` - Upload images for classification
+- `list_models` - Get available model list
+- `predict_flake_quality` - Run quality predictions
+- `get_prediction_history` - Access prediction history
+
+### Example Usage
+
+```python
+# Remote client connection
+import requests, base64
+
+server = "http://192.168.1.100:8001"
+
+# Upload image
+with open("image.jpg", "rb") as f:
+    data = {"image_data": base64.b64encode(f.read()).decode(), "filename": "image.jpg"}
+upload = requests.post(f"{server}/mcp/tools/upload_image", data=data)
+
+# Get prediction
+prediction = requests.post(f"{server}/mcp/tools/predict_flake_quality", 
+    data={"model_name": "hBN_monolayer", "image_filename": upload.json()["filename"]})
+print(f"Quality: {prediction.json()['quality']}")
+```
+
+**Documentation**: See `MCP_USAGE.md` for complete API reference and setup instructions.
 
 ## 🛠️ Advanced Usage
 
@@ -136,15 +225,16 @@ print(f"Trainable parameters: {info['trainable_params']}")
 - OpenCV
 - Pillow
 - NumPy
+- Tkinter (included with Python - for GUI)
 
 ## 🎯 Use Cases
 
 This framework is ideal for:
-- 2D material quality assessment (graphene, hBN, transition metal dichalcogenides, etc.)
-- Multi-material flake classification
-- Microscopy image analysis
-- Research in materials science and nanotechnology
-- Educational deep learning projects
+- **Research**: 2D material quality assessment (graphene, hBN, transition metal dichalcogenides, etc.)
+- **Industrial**: Automated quality control in materials manufacturing
+- **Educational**: Deep learning demonstrations and materials science teaching
+- **Development**: Rapid prototyping of material classification systems
+- **Analysis**: Batch processing of microscopy images
 
 ## 🔧 Troubleshooting
 
@@ -160,6 +250,24 @@ This framework is ideal for:
 - Use batch processing for multiple images
 - Consider image size vs. accuracy tradeoffs
 - GPU acceleration works automatically if CUDA is available
+
+## 🚀 Current Status & Next Phase
+
+**Phase 1 - Completed:**
+- ✅ Multi-material 2D classification framework (graphene, hBN, etc.)
+- ✅ Clean, modular codebase with 10+ pretrained models
+- ✅ Command-line interface and comprehensive examples
+- ✅ GUI application for easy testing and demonstration
+- ✅ Sample data and complete documentation
+
+**Phase 2 - Completed:**
+- ✅ Model Context Protocol (MCP) server for remote language model integration
+- ✅ HTTP API endpoints for image upload and prediction
+- ✅ Network-accessible service with configurable IP/port binding
+- ✅ RESTful API with JSON responses and comprehensive documentation
+- ✅ Production-ready MCP server with health monitoring and logging
+
+**Ready for Phase 3:** Advanced features, authentication, custom training, and production deployment scaling.
 
 ## 🤝 Contributing
 
