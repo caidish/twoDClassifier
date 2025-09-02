@@ -26,7 +26,7 @@ python examples/basic_usage.py
 python gui_app.py
 
 # MCP server for remote language model access (Phase 2)
-python mcp_server.py --host 0.0.0.0 --port 8001
+python mcp_http_server.py --host 0.0.0.0 --port 8001
 
 # Test MCP server functionality
 python test_mcp_simple.py

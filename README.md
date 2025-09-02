@@ -74,12 +74,10 @@ twoDClassifier/
 │   └── Data2.jpg
 ├── gui_app.py             # GUI testing application
 ├── GUI_USAGE.md           # GUI usage guide
-├── mcp_server.py          # MCP server for remote language models
-├── mcp_config.py          # MCP server configuration
-├── mcp_client_example.py  # MCP client example code
-├── mcp_requirements.txt   # Additional MCP dependencies
-├── test_mcp_simple.py     # MCP server testing script
-├── MCP_USAGE.md           # MCP server documentation
+├── mcp_http_server.py     # HTTP/REST MCP server for web clients
+├── mcp_fastmcp_server.py  # FastMCP server for MCP clients (88 lines)
+├── claude_desktop_config.json  # Claude Desktop configuration example
+├── MCP_USAGE.md           # HTTP MCP server documentation
 ├── todo.md                # Development planning document
 ├── requirements.txt
 └── README.md
@@ -128,59 +126,83 @@ python gui_app.py
 
 See `GUI_USAGE.md` for detailed instructions.
 
-## 🌐 MCP Server (Remote Access)
+## 🌐 MCP Server (Remote Access & Claude Desktop)
 
-The project now includes a Model Context Protocol (MCP) server that enables remote language models to access the 2D material classification system via network connections.
+The project includes **dual MCP server support** for maximum compatibility:
 
-### Quick Start
+### Server Options
 
+**1. HTTP/REST Server (`mcp_http_server.py`)** - For web clients and API access:
 ```bash
-# Install MCP dependencies
+# Install HTTP server dependencies
 pip install fastapi 'uvicorn[standard]' python-multipart httpx
 
-# Start MCP server (default: localhost:8000)
-python mcp_server.py
+# Start HTTP server (default: localhost:8000)
+python mcp_http_server.py
 
 # Custom IP and port for remote access
-python mcp_server.py --host 0.0.0.0 --port 8001
+python mcp_http_server.py --host 0.0.0.0 --port 8001
 ```
 
-### Remote Language Model Integration
+**2. FastMCP Server (`mcp_fastmcp_server.py`)** - For MCP clients (⭐ **70% less code**):
+```bash
+# Install FastMCP dependencies
+pip install fastmcp tensorflow opencv-python pillow numpy
 
-Remote LMs can connect via HTTP to:
-1. **Upload images**: POST base64-encoded images to server
-2. **Select models**: Choose from 10+ available neural networks
-3. **Get predictions**: Receive quality classifications with confidence scores
-4. **Access history**: Retrieve previous prediction results
+# Configure MCP client (e.g. Claude Desktop) with full path
+# Then restart client - no manual server start needed!
+```
 
-**Connection URL**: `http://<server-ip>:<port>`
+### Why Two Servers?
 
-**Available MCP Tools**:
+- **HTTP Server**: Perfect for web applications, remote API access, production deployments
+- **FastMCP Server**: Seamless MCP client integration with compact, clean code
+- **Both share the same model logic**: No duplication, consistent results
+
+### Available MCP Tools (Both Servers)
+
 - `upload_image` - Upload images for classification
-- `list_models` - Get available model list
-- `predict_flake_quality` - Run quality predictions
+- `list_models` - Get available model list (10+ models)
+- `predict_flake_quality` - Run quality predictions with confidence scores
 - `get_prediction_history` - Access prediction history
 
-### Example Usage
+### Usage Examples
 
+**HTTP Client (Web/API)**:
 ```python
-# Remote client connection
 import requests, base64
 
-server = "http://192.168.1.100:8001"
+server = "http://localhost:8000"  # or remote IP
 
-# Upload image
+# Upload and analyze
 with open("image.jpg", "rb") as f:
     data = {"image_data": base64.b64encode(f.read()).decode(), "filename": "image.jpg"}
 upload = requests.post(f"{server}/mcp/tools/upload_image", data=data)
 
-# Get prediction
 prediction = requests.post(f"{server}/mcp/tools/predict_flake_quality", 
     data={"model_name": "hBN_monolayer", "image_filename": upload.json()["filename"]})
 print(f"Quality: {prediction.json()['quality']}")
 ```
 
-**Documentation**: See `MCP_USAGE.md` for complete API reference and setup instructions.
+**MCP Client Integration** (e.g. Claude Desktop):
+1. Configure client with full path to `mcp_fastmcp_server.py`
+2. Chat with AI: *"What 2D material models are available?"*
+3. Upload images: *"Can you analyze this graphene flake for quality?"*
+4. Get predictions: *"Use the hBN_monolayer model on my uploaded image"*
+
+### Code Comparison
+
+| Feature | HTTP Server | FastMCP Server |
+|---------|-------------|----------------|
+| **Lines of Code** | 288 lines | **88 lines** ⭐ |
+| **Setup Complexity** | Manual FastAPI setup | **Decorator-based** ⭐ |
+| **Protocol Handling** | Manual JSON-RPC | **Automatic** ⭐ |
+| **MCP Clients** | ❌ Not compatible | ✅ **Native support** |
+| **Web/API Clients** | ✅ Perfect | ❌ Not suitable |
+| **Remote Access** | ✅ Network ready | ❌ Local only |
+
+**Documentation**: 
+- `MCP_USAGE.md` - HTTP server API reference
 
 ## 🛠️ Advanced Usage
 
@@ -261,13 +283,15 @@ This framework is ideal for:
 - ✅ Sample data and complete documentation
 
 **Phase 2 - Completed:**
-- ✅ Model Context Protocol (MCP) server for remote language model integration
-- ✅ HTTP API endpoints for image upload and prediction
-- ✅ Network-accessible service with configurable IP/port binding
-- ✅ RESTful API with JSON responses and comprehensive documentation
-- ✅ Production-ready MCP server with health monitoring and logging
+- ✅ **Dual MCP server architecture** supporting both web and MCP clients
+- ✅ **HTTP/REST server** (288 lines) for web applications and remote API access
+- ✅ **FastMCP server** (88 lines) for seamless MCP client integration
+- ✅ **Shared model logic** - both servers use identical classification algorithms
+- ✅ **Network-accessible service** with configurable IP/port binding
+- ✅ **Production-ready architecture** with comprehensive documentation
+- ✅ **MCP client configuration** with example setup
 
-**Ready for Phase 3:** Advanced features, authentication, custom training, and production deployment scaling.
+**Ready for Phase 3:** Advanced authentication, custom model training, production scaling, and enterprise deployment features.
 
 ## 🤝 Contributing
 

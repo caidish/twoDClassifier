@@ -26,13 +26,13 @@ pip install -r requirements.txt
 
 ```bash
 # Basic server start (localhost:8000)
-python mcp_server.py
+python mcp_http_server.py
 
 # Custom host and port
-python mcp_server.py --host 0.0.0.0 --port 8001
+python mcp_http_server.py --host 0.0.0.0 --port 8001
 
 # Development mode with auto-reload
-python mcp_server.py --host 127.0.0.1 --port 8001 --reload
+python mcp_http_server.py --host 127.0.0.1 --port 8001 --reload
 ```
 
 ### 3. Test Server Connection
@@ -290,7 +290,7 @@ For production use:
 
 ```bash
 # Enable debug logging
-python mcp_server.py --host 0.0.0.0 --port 8001 --reload
+python mcp_http_server.py --host 0.0.0.0 --port 8001 --reload
 
 # Test with verbose client
 python test_mcp_simple.py
