@@ -23,20 +23,25 @@ pip install fastapi 'uvicorn[standard]' python-multipart httpx requests
 python examples/basic_usage.py
 
 # GUI application for interactive testing
-python gui_app.py
+python examples/gui_app.py
 
-# MCP server for remote language model access (Phase 2)
-python mcp_http_server.py --host 0.0.0.0 --port 8001
+# MCP HTTP servers for remote language model access (Phase 2)
+python mcp_http_server.py --host 0.0.0.0 --port 8001    # Traditional HTTP server
+python mcp_fastmcp_server.py --host 0.0.0.0 --port 8002 # FastMCP HTTP server
+
+# Unified server launcher (defaults to FastMCP HTTP)
+python start_server.py                                  # Default: FastMCP HTTP
+python start_server.py --type http --port 8000          # Traditional HTTP
 
 # Test MCP server functionality
-python test_mcp_simple.py
+python examples/test_mcp_simple.py
 ```
 
 ### Testing
 No formal test suite is configured. Testing is done via:
 - Command line examples with sample data (data/Data1.jpg, data/Data2.jpg)
 - GUI application for interactive testing with multiple models
-- MCP server testing with `test_mcp_simple.py` (Phase 2)
+- MCP server testing with `examples/test_mcp_simple.py` (Phase 2)
 - Manual verification of model predictions
 
 ## Architecture
@@ -69,14 +74,13 @@ models/
 ├── hBN_20x_dot/             # hBN nanodots
 ├── Graphene1234/            # Graphene variant
 ├── Graphene_1to7/           # Multi-layer graphene
-└── Graphene_Shuwen/         # Specialized graphene model
 
 Each model directory contains:
 ├── trained_model.json       # Keras model architecture
 └── trained_model.h5         # Trained weights
 ```
 
-**Available Models**: 10+ pretrained models supporting various 2D materials (graphene, hBN variants)
+**Available Models**: 9 pretrained models supporting various 2D materials (graphene, hBN variants)
 
 ### Data Flow
 1. Images are loaded via PIL and preprocessed with CenterCrop
@@ -91,18 +95,18 @@ Each model directory contains:
 - Available models can be listed with `list_available_models()`
 
 ### GUI Application
-**File**: `gui_app.py` - Complete tkinter-based testing interface
+**File**: `examples/gui_app.py` - Complete tkinter-based testing interface
 - Image selection from `data/` folder (includes Data1.jpg, Data2.jpg samples)
 - Model selection from all available models in `models/`
 - Real-time prediction with confidence scores
 - Threading for non-blocking predictions
 - Visual image preview and color-coded results
 
-**Usage**: `python gui_app.py` (after activating venv)
+**Usage**: `python examples/gui_app.py` (after activating venv)
 
 ### Project Status
 **Phase 1 Complete**: Multi-material framework with GUI
-- 10+ pretrained models for various 2D materials
+- 9 pretrained models for various 2D materials
 - Complete CLI and GUI interfaces  
 - Sample data and comprehensive documentation
 - Production-ready codebase structure

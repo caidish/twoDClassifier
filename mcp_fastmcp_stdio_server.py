@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Compact FastMCP Server for 2D Material Classification
-Compatible with MCP clients via HTTP or stdio transport
+Compact FastMCP Server for 2D Material Classification (stdio transport)
+Compatible with MCP clients via stdio transport (for Claude Desktop)
 """
 
 import base64
@@ -165,20 +165,6 @@ def get_prediction_history(limit: int = 10) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="FastMCP Server for 2D Material Classification")
-    parser.add_argument("--host", default="localhost", help="Host to bind to (default: localhost)")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to (default: 8000)")
-    parser.add_argument("--transport", choices=["http", "stdio"], default="http", 
-                       help="Transport type (default: http)")
-    
-    args = parser.parse_args()
-    
-    if args.transport == "http":
-        print(f"Starting FastMCP server with HTTP transport on {args.host}:{args.port}")
-        print(f"Server will be accessible at: http://{args.host}:{args.port}/mcp/")
-        mcp.run(transport="http", host=args.host, port=args.port)
-    else:
-        print("Starting FastMCP server with stdio transport")
-        mcp.run(transport="stdio")
+    # FastMCP with stdio transport for Claude Desktop
+    print("Starting FastMCP server with stdio transport", file=sys.stderr)
+    mcp.run(transport="stdio")

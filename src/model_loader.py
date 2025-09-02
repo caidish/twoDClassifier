@@ -7,6 +7,7 @@ import os
 import json
 import tensorflow as tf
 from tensorflow.keras.models import model_from_json
+from tensorflow.keras.utils import custom_object_scope
 from typing import Optional
 
 
@@ -42,8 +43,22 @@ class GrapheneClassifier:
             with open(json_path, 'r') as f:
                 model_json = f.read()
             
-            self.model = model_from_json(model_json)
-            self.model.load_weights(weights_path)
+            # Try modern approach first (TensorFlow 2.8+)
+            try:
+                # Use custom object scope to handle Sequential class loading
+                with custom_object_scope({'Sequential': tf.keras.Sequential}):
+                    self.model = model_from_json(model_json)
+                    self.model.load_weights(weights_path)
+            except Exception as modern_error:
+                # Fallback to alternative approach
+                try:
+                    # Parse JSON and rebuild model manually
+                    model_config = json.loads(model_json)
+                    self.model = tf.keras.Sequential.from_config(model_config['config'])
+                    self.model.load_weights(weights_path)
+                except Exception as fallback_error:
+                    raise RuntimeError(f"Failed to load model with both methods. Modern error: {modern_error}. Fallback error: {fallback_error}")
+            
             print(f"Successfully loaded model from {self.model_path}")
             
         except Exception as e:

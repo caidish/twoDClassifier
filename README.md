@@ -42,7 +42,7 @@ print(f"Good probability: {probs[0][1]:.3f}")
 python examples/basic_usage.py
 
 # GUI Application
-python gui_app.py
+python examples/gui_app.py
 ```
 
 ## 📁 Project Structure
@@ -67,15 +67,19 @@ twoDClassifier/
 │   ├── __init__.py
 │   ├── model_loader.py    # Model loading utilities
 │   └── image_utils.py     # Image preprocessing
-├── examples/              # Usage examples
-│   └── basic_usage.py
-├── data/                  # Sample test images
-│   ├── Data1.jpg
-│   └── Data2.jpg
-├── gui_app.py             # GUI testing application
+├── examples/              # Usage examples and demos
+│   ├── basic_usage.py     # Command-line usage example
+│   ├── gui_app.py         # GUI testing application
+│   ├── test_mcp_simple.py # MCP server testing
+│   └── mcp_client_example.py  # MCP client example
+├── data/                  # Sample test images (uploaded images stored here)
 ├── GUI_USAGE.md           # GUI usage guide
 ├── mcp_http_server.py     # HTTP/REST MCP server for web clients
-├── mcp_fastmcp_server.py  # FastMCP server for MCP clients (88 lines)
+├── mcp_fastmcp_server.py  # FastMCP server (HTTP + stdio transport, 88 lines)
+├── mcp_fastmcp_stdio_server.py  # FastMCP stdio-only server (Claude Desktop)
+├── start_server.py        # Unified server launcher with port fallback
+├── start_http_server.py   # HTTP server launcher with port fallback
+├── start_fastmcp_server.py # FastMCP HTTP server launcher with port fallback
 ├── claude_desktop_config.json  # Claude Desktop configuration example
 ├── MCP_USAGE.md           # HTTP MCP server documentation
 ├── todo.md                # Development planning document
@@ -100,8 +104,8 @@ All pretrained models use CNN architectures optimized for 2D material classifica
 - TensorFlow 2.x compatible
 - Clean, modular code structure
 - **GUI testing interface** for easy model/image testing
-- **Multiple model support** (10+ pretrained models available)
-- **Sample data included** for immediate testing
+- **Multiple model support** (9 pretrained models available)
+- **Sample data and examples** for immediate testing
 
 ## 📊 Model Performance
 
@@ -118,8 +122,8 @@ python gui_app.py
 ```
 
 **GUI Features:**
-- **Image Selection**: Choose from sample images in `data/` folder
-- **Model Selection**: Pick from 10+ available models (graphene, hBN variants)
+- **Image Selection**: Upload your own images or use existing ones in `data/` folder
+- **Model Selection**: Pick from 9 available models (graphene, hBN variants)
 - **Real-time Prediction**: Instant results with confidence scores
 - **Visual Interface**: Image preview and color-coded results
 - **Model Comparison**: Easy switching between different models
@@ -149,8 +153,16 @@ python mcp_http_server.py --host 0.0.0.0 --port 8001
 # Install FastMCP dependencies
 pip install fastmcp tensorflow opencv-python pillow numpy
 
-# Configure MCP client (e.g. Claude Desktop) with full path
-# Then restart client - no manual server start needed!
+# Start HTTP server (default: localhost:8000 with port fallback)
+python mcp_fastmcp_server.py
+
+# Custom configuration
+python mcp_fastmcp_server.py --host 0.0.0.0 --port 8001
+
+# For stdio transport (Claude Desktop)
+python mcp_fastmcp_server.py --transport stdio
+# OR use dedicated stdio server
+python mcp_fastmcp_stdio_server.py
 ```
 
 ### Why Two Servers?
@@ -162,7 +174,7 @@ pip install fastmcp tensorflow opencv-python pillow numpy
 ### Available MCP Tools (Both Servers)
 
 - `upload_image` - Upload images for classification
-- `list_models` - Get available model list (10+ models)
+- `list_models` - Get available model list (9 models)
 - `predict_flake_quality` - Run quality predictions with confidence scores
 - `get_prediction_history` - Access prediction history
 
@@ -184,11 +196,18 @@ prediction = requests.post(f"{server}/mcp/tools/predict_flake_quality",
 print(f"Quality: {prediction.json()['quality']}")
 ```
 
-**MCP Client Integration** (e.g. Claude Desktop):
-1. Configure client with full path to `mcp_fastmcp_server.py`
+**MCP Client Integration**:
+
+*HTTP clients (web/API)*:
+```python
+import requests
+response = requests.get("http://localhost:8000/mcp/tools/list_models")
+```
+
+*Claude Desktop (stdio)*:
+1. Configure client with full path to `mcp_fastmcp_stdio_server.py` 
 2. Chat with AI: *"What 2D material models are available?"*
 3. Upload images: *"Can you analyze this graphene flake for quality?"*
-4. Get predictions: *"Use the hBN_monolayer model on my uploaded image"*
 
 ### Code Comparison
 
@@ -197,9 +216,10 @@ print(f"Quality: {prediction.json()['quality']}")
 | **Lines of Code** | 288 lines | **88 lines** ⭐ |
 | **Setup Complexity** | Manual FastAPI setup | **Decorator-based** ⭐ |
 | **Protocol Handling** | Manual JSON-RPC | **Automatic** ⭐ |
+| **Transport Support** | HTTP only | **HTTP + stdio** ⭐ |
 | **MCP Clients** | ❌ Not compatible | ✅ **Native support** |
-| **Web/API Clients** | ✅ Perfect | ❌ Not suitable |
-| **Remote Access** | ✅ Network ready | ❌ Local only |
+| **Web/API Clients** | ✅ Perfect | ✅ **HTTP mode** ⭐ |
+| **Remote Access** | ✅ Network ready | ✅ **HTTP mode** ⭐ |
 
 **Documentation**: 
 - `MCP_USAGE.md` - HTTP server API reference
@@ -277,7 +297,7 @@ This framework is ideal for:
 
 **Phase 1 - Completed:**
 - ✅ Multi-material 2D classification framework (graphene, hBN, etc.)
-- ✅ Clean, modular codebase with 10+ pretrained models
+- ✅ Clean, modular codebase with 9 pretrained models
 - ✅ Command-line interface and comprehensive examples
 - ✅ GUI application for easy testing and demonstration
 - ✅ Sample data and complete documentation
@@ -285,13 +305,19 @@ This framework is ideal for:
 **Phase 2 - Completed:**
 - ✅ **Dual MCP server architecture** supporting both web and MCP clients
 - ✅ **HTTP/REST server** (288 lines) for web applications and remote API access
-- ✅ **FastMCP server** (88 lines) for seamless MCP client integration
+- ✅ **FastMCP server** (88 lines) with HTTP + stdio transport support
+- ✅ **Unified server launcher** with automatic port fallback
 - ✅ **Shared model logic** - both servers use identical classification algorithms
 - ✅ **Network-accessible service** with configurable IP/port binding
 - ✅ **Production-ready architecture** with comprehensive documentation
-- ✅ **MCP client configuration** with example setup
 
-**Ready for Phase 3:** Advanced authentication, custom model training, production scaling, and enterprise deployment features.
+**Phase 3 - Completed:**
+- ✅ **Project organization** - moved examples to `examples/` directory
+- ✅ **Code cleanup** - removed outdated config and test files
+- ✅ **Documentation updates** - reflects current project structure
+- ✅ **Server launcher scripts** - multiple options for easy deployment
+
+**Ready for Phase 4+:** Advanced authentication, custom model training, production scaling, and enterprise deployment features.
 
 ## 🤝 Contributing
 
