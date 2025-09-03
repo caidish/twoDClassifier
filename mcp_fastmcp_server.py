@@ -4,9 +4,22 @@ Compact FastMCP Server for 2D Material Classification
 Compatible with MCP clients via HTTP or stdio transport
 """
 
+# IMPORTANT: Monkey patch MCP message size limit BEFORE any imports
+# This must happen before FastMCP or MCP modules are imported
+import sys
+
+# Pre-load and patch the MCP module to increase message size limit
+# This supports 16MB files (which become ~21MB when Base64 encoded)
+try:
+    import mcp.server.streamable_http
+    mcp.server.streamable_http.MAXIMUM_MESSAGE_SIZE = 25 * 1024 * 1024  # 25MB
+    print(f"Increased MCP message size limit to {25}MB for large file support", file=sys.stderr)
+except ImportError:
+    print("Warning: Could not import mcp.server.streamable_http for size limit patch", file=sys.stderr)
+
 import base64
 import json
-import sys
+import os
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -63,21 +76,29 @@ def upload_image(image_data: str, filename: str) -> Dict[str, Any]:
         # Decode base64 image data
         image_bytes = base64.b64decode(image_data)
         
-        # Generate unique filename
-        file_ext = Path(filename).suffix
-        unique_filename = f"{uuid.uuid4()}{file_ext}"
-        file_path = data_dir / unique_filename
+        # Keep original filename, ensure uniqueness
+        target_path = data_dir / filename
+        final_filename = filename
         
-        # Save image
-        with open(file_path, "wb") as f:
+        if target_path.exists():
+            # Add counter to make unique
+            base, ext = os.path.splitext(filename)
+            counter = 1
+            while target_path.exists():
+                final_filename = f"{base}_{counter}{ext}"
+                target_path = data_dir / final_filename
+                counter += 1
+        
+        # Save image with preserved filename
+        with open(target_path, "wb") as f:
             f.write(image_bytes)
         
         return {
             "success": True,
-            "filename": unique_filename,
+            "filename": final_filename,
             "original_filename": filename,
             "size": len(image_bytes),
-            "path": str(file_path)
+            "path": str(target_path)
         }
         
     except Exception as e:

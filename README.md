@@ -173,7 +173,7 @@ python mcp_fastmcp_stdio_server.py
 
 ### Available MCP Tools (Both Servers)
 
-- `upload_image` - Upload images for classification
+- `upload_image` - Upload images for classification (supports up to 16MB files)
 - `list_models` - Get available model list (9 models)
 - `predict_flake_quality` - Run quality predictions with confidence scores
 - `get_prediction_history` - Access prediction history

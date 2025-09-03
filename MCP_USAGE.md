@@ -52,7 +52,7 @@ python test_mcp_simple.py
 
 ### Available Tools
 
-1. **`upload_image`**: Upload images for classification
+1. **`upload_image`**: Upload images for classification (supports up to 16MB files via Base64 encoding)
 2. **`list_models`**: Get available model list  
 3. **`predict_flake_quality`**: Run 2D material quality prediction
 4. **`get_prediction_history`**: Retrieve prediction history
@@ -260,8 +260,9 @@ For production use:
 
 ### File Storage
 
-- **Images**: Uploaded to `data/` directory with UUID filenames
-- **Models**: Stored in `models/` directory (10+ pretrained models)
+- **Images**: Uploaded to `data/` directory with original filenames (preserved with counter for duplicates)
+- **File Size**: Supports images up to 16MB (increased from 2MB default limit)
+- **Models**: Stored in `models/` directory (9 pretrained models)
 - **History**: In-memory storage (add database for persistence)
 
 ## Troubleshooting
@@ -278,8 +279,9 @@ For production use:
 
 3. **Image upload fails**:
    - Verify `data/` directory is writable
-   - Check image file size limits (50MB max)
+   - Check image file size limits (16MB max for Base64 uploads)
    - Ensure proper base64 encoding
+   - For larger files, consider using file path upload methods
 
 4. **Connection refused**:
    - Verify server is running: `curl http://localhost:8001/health`  

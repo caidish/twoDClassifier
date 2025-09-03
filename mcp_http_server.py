@@ -145,23 +145,31 @@ class MCPServer:
                 # Decode base64 image data
                 image_bytes = base64.b64decode(image_data)
                 
-                # Generate unique filename
-                file_ext = Path(filename).suffix
-                unique_filename = f"{uuid.uuid4()}{file_ext}"
-                file_path = self.data_dir / unique_filename
+                # Keep original filename, ensure uniqueness
+                target_path = self.data_dir / filename
+                final_filename = filename
                 
-                # Save image
-                with open(file_path, "wb") as f:
+                if target_path.exists():
+                    # Add counter to make unique
+                    base, ext = os.path.splitext(filename)
+                    counter = 1
+                    while target_path.exists():
+                        final_filename = f"{base}_{counter}{ext}"
+                        target_path = self.data_dir / final_filename
+                        counter += 1
+                
+                # Save image with preserved filename
+                with open(target_path, "wb") as f:
                     f.write(image_bytes)
                 
-                logger.info(f"Image uploaded: {unique_filename}")
+                logger.info(f"Image uploaded: {final_filename}")
                 
                 return {
                     "success": True,
-                    "filename": unique_filename,
+                    "filename": final_filename,
                     "original_filename": filename,
                     "size": len(image_bytes),
-                    "path": str(file_path)
+                    "path": str(target_path)
                 }
                 
             except Exception as e:
